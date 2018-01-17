@@ -1,16 +1,4 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-typedef	struct		s_coord
-{
-	int	*abs;	// tableau coordonnees abscisses
-	int	*ord;	// tableau coordonnees ordonnees
-	int	sharp;	// nb de '#'
-	int	t;	//nb de tetriminos
-}					t_coord;
+#include "fillit.h"
 
 int					figure(t_coord *pos)// fonction pour verifier si le tetriminos a une forme valide, avec 4 '#' qui se touchent
 {
@@ -30,6 +18,10 @@ int					figure(t_coord *pos)// fonction pour verifier si le tetriminos a une for
 			max_abs = 0;
 			max_ord = 0;
 		}
+		if (pos->abs[i] < 0)
+			pos->abs[i] *= -1;
+		if (pos->ord[i] < 0)
+			pos->ord[i] *= -1;
 		if (pos->abs[i] > max_abs)
 			max_abs = pos->abs[i];
 		if (pos->ord[i] > max_ord)
@@ -58,10 +50,6 @@ t_coord				*placing(t_coord *pos)// fonction pour placer les tetriminos en haut 
 		}
 		pos->abs[num_sharp] -= copy_abs;
 		pos->ord[num_sharp] -= copy_ord;
-		if (pos->abs[num_sharp] < 0)
-			pos->abs[num_sharp] *= -1;
-		if (pos->ord[num_sharp] < 0)
-			pos->ord[num_sharp] *= -1;
 		num_sharp++;
 		i++;
 	}
@@ -138,33 +126,11 @@ t_coord				*testriminos(char *str)
 	}
 	if (!(pos->ord = (int *)malloc((pos->sharp + 1) * sizeof(int))))
 	{
-		free(pos->abs);
+		free(pos->ord);
 		return (NULL);
 	}
 	pos = coordonate(str, pos);
 	if (!(figure(pos)))
 		return (NULL);
 	return (pos);
-}
-
-int					main(int argv, char **argc)
-{
-	int		fd;
-	char	str[63001];
-
-	if (argv == 2)
-	{
-		fd = open(argc[1], O_RDONLY);
-		read(fd, str, 63000);
-		if (!(testriminos(str)))
-		{
-			printf("ERROR");
-			return(0);
-		}
-		else
-			printf("valid");
-	}
-	else
-			write(1, "\n", 1);
-	return (0);
 }
