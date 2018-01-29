@@ -1,37 +1,45 @@
-#include "fillit.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tetriminos.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgarcia <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/12/11 19:52:35 by sgarcia           #+#    #+#             */
+/*   Updated: 2018/01/24 18:47:05 by cmasetti         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int					figure(t_coord *pos)// fonction pour verifier si le tetriminos a une forme valide, avec 4 '#' qui se touchent
+#include "fillit.h"
+#include "Libft/libft.h"
+
+int					figure(t_coord *pos)
 {
 	int	max_abs;
 	int	max_ord;
 	int	i;
 
 	i = 0;
-	max_abs = 0;
-	max_ord = 0;
-	while (i <= pos->sharp)
+	while (i < pos->sharp)
 	{
-		if (i % 4 == 0)
-		{
-			if (max_abs + max_ord > 3)// si la forme n'est pas valide il y aura plus de 3
-				return (0);
-			max_abs = 0;
-			max_ord = 0;
-		}
-		if (pos->abs[i] < 0)
-			pos->abs[i] *= -1;
-		if (pos->ord[i] < 0)
-			pos->ord[i] *= -1;
-		if (pos->abs[i] > max_abs)
-			max_abs = pos->abs[i];
-		if (pos->ord[i] > max_ord)
-			max_ord = pos->ord[i];
-		i++;
+		max_abs = 0;
+		max_ord = 0;
+		max_abs = ft_max(ft_max(pos->abs[i + 1], pos->abs[i + 2]),
+					pos->abs[i + 3]) + ft_max(0, -ft_min(ft_min(pos->abs[i + 1],
+							pos->abs[i + 2]), pos->abs[i + 3]));
+		max_ord = ft_max(ft_max(pos->ord[i + 1], pos->ord[i + 2]),
+				pos->ord[i + 3]);
+		if ((max_abs + max_ord) > 3 || (pos->abs[i + 1] == 0 &&
+					pos->abs[i + 2] == 2 && pos->abs[i + 3] == 2) ||
+				(pos->ord[i + 1] == 0 && pos->ord[i + 2] == 2 &&
+				pos->ord[i + 3] == 2))
+			return (0);
+		i += 4;
 	}
 	return (1);
 }
 
-t_coord				*placing(t_coord *pos)// fonction pour placer les tetriminos en haut a gauche dans leurs grilles respective
+t_coord				*placing(t_coord *pos)
 {
 	int	num_sharp;
 	int	i;
@@ -56,17 +64,17 @@ t_coord				*placing(t_coord *pos)// fonction pour placer les tetriminos en haut 
 	return (pos);
 }
 
-t_coord				*coordonate(char *str, t_coord *pos) //fonction pour noter les coordonnees des tetriminos dans leurs grilles respectives dans deux tableaux
+t_coord				*coordonate(char *str, t_coord *pos)
 {
 	int	chara;
-	int	tetri;	// Num du '#'
+	int	tetri;
 
 	chara = 0;
 	pos->sharp = 0;
 	tetri = 1;
 	while (str[chara])
 	{
-		if ((chara + 1 - tetri) / (20 * tetri) == 1) // condition qui se verifie qd on est sur la ligne entre chaques tetri
+		if ((chara + 1 - tetri) / (20 * tetri) == 1)
 			tetri++;
 		if (str[chara] == '#')
 		{
@@ -82,10 +90,9 @@ t_coord				*coordonate(char *str, t_coord *pos) //fonction pour noter les coordo
 
 t_coord				*verif_tetri(char *str, t_coord *pos, int chara)
 {
-	pos->t = 1;
 	while (str[chara])
 	{
-		if ((chara + 1 - pos->t) / (20 * pos->t) == 1) // condition qui se verifie qd on est sur la ligne entre chaques tetri
+		if (chara / (21 * pos->t - 1) == 1)
 		{
 			if (pos->sharp != 4 * pos->t || str[21 * pos->t - 1] != '\n')
 				return (NULL);
@@ -94,22 +101,22 @@ t_coord				*verif_tetri(char *str, t_coord *pos, int chara)
 		if (str[chara] == '#')
 			pos->sharp++;
 		if ((str[chara] != '.' && str[chara] != '#' && str[chara] != '\n')
-				|| ((chara + 2 - pos->t) % 5 == 0 && str[chara] != '\n') // si il y a  '\n' apres chaques 4 x '.'
+				|| ((chara + 2 - pos->t) % 5 == 0 && str[chara] != '\n')
 				|| (str[chara] == '\n' && (!((chara + 2 - pos->t) % 5 == 0) ||
-						(21 * pos->t - 1 == chara)))) // si il y a un '\n' de trop
+						(21 * pos->t - 1 == chara))))
 			return (NULL);
 		chara++;
 	}
 	if (pos->sharp != 4 * pos->t || pos->t > 26 || chara < 20)
 		return (NULL);
-	if (chara != 21 * pos->t - 1) // verifier le bon nombre de chara
+	if (chara != 21 * pos->t - 1)
 		return (NULL);
 	return (pos);
 }
 
 t_coord				*testriminos(char *str)
 {
-	int			chara;// nb de caracteres
+	int			chara;
 	t_coord		*pos;
 
 	chara = 0;
