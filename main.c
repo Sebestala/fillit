@@ -6,7 +6,7 @@
 /*   By: cmasetti <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/01/17 17:53:03 by cmasetti          #+#    #+#             */
-/*   Updated: 2018/01/24 17:18:55 by sgarcia          ###   ########.fr       */
+/*   Updated: 2018/01/26 13:42:45 by cmasetti         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,7 @@ int		main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	fd = open(argv[1], O_RDONLY);
-	if ((side = read(fd, str, 599)) >= 546)
-		return (0);
+	side = read(fd, str, 599);
 	str[side] = '\0';
 	close(fd);
 	if (!(pos = testest(str)))
